@@ -41,10 +41,24 @@ class bcbuf{
   public:
     bcbuf();
     using buf_data = std::array<std::uint8_t, L>;
+
+    // Write a single bit after the current position
+    // and move the current position a bit forward
     inline void write(bool bit);
+
+    // Write bytes from begin to end 
+    // with the same bit order as input
     template <typename T>
     inline void write(T begin, T end);
+
+    // Write bytes from begin to end 
+    // with the inverse bit order as input
+    template <typename T>
+    inline void write_reverse(T begin, T end)
+
     inline buf_data& data();
+
+    
     inline void reset();
 
   private:
@@ -85,6 +99,19 @@ inline void bcbuf<L>::write(T begin, T end){
         std::uint8_t tmp = 0x00;
         // -O3 would unroll this automatically
         for(std::size_t i = 0; i != 8; ++i){
+            tmp = setbit(tmp, i, *(begin++));
+        }
+        *(cur++) = tmp;
+    }
+}
+
+template <std::size_t L>
+template <typename T>
+inline void bcbuf<L>::write_reverse(T begin, T end){
+    while(begin != end){
+        std::uint8_t tmp = 0x00;
+        // -O3 would unroll this automatically
+        for(std::size_t i = 7; i >= 0; --i){
             tmp = setbit(tmp, i, *(begin++));
         }
         *(cur++) = tmp;
