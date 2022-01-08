@@ -1,6 +1,6 @@
 
-#ifndef dns3evtengine
-#define dns3evtengine
+#ifndef thdevtengine
+#define thdevtengine
 
 #include <array>
 #include <atomic>
@@ -10,7 +10,6 @@
 
 #include "queue.h"
 
-namespace dns3{
 
 // Type traits to deduce the instance type of member function pointer
 template <typename> struct member_function_traits;
@@ -118,6 +117,8 @@ void EventEngine<T>::ignite(F* cbList, F onFinish, instanceType<F>& instance){
 template<typename T>
 void EventEngine<T>::stall(){
     run_ = false;
+    // stop pushing new event into the queue
+    events_.resize(0);
     events_.wake();
 }
 
@@ -141,5 +142,4 @@ struct member_function_traits<Return (Object::*)(Args...) const>{
     typedef Object const & instance_reference;
 };
 
-}
 #endif

@@ -1,6 +1,6 @@
 
-#ifndef dns3queue
-#define dns3queue
+#ifndef thdblockingqueue
+#define thdblockingqueue
 
 #include <condition_variable>
 #include <deque>
@@ -25,10 +25,12 @@ class BlockingQueue{
     void wait();
     // wake the thread from wating (blocking)
     void wake();
+    // change the capacity
+    void resize(std::size_t capacity);
 
   private:
     std::deque<T> content_;
-    size_t capacity_;
+    std::size_t capacity_;
 
     std::mutex mutex_;
     std::condition_variable notEmpty_;
@@ -100,6 +102,13 @@ void BlockingQueue<T>::wake(){
     std::unique_lock<std::mutex> lk(mutex_);
     wake_ = true;
     notEmpty_.notify_one();
+}
+
+template<typename T>
+void BlockingQueue<T>::resize(std::size_t capacity){
+    std::unique_lock<std::mutex> lk(mutex_);
+    capacity_ = capacity;
+    notFull_.notify_one();
 }
 
 #endif
